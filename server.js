@@ -62,20 +62,41 @@ app.post('/api/session', async (req, res) => {
   try {
     const { name, studentNumber, chatId } = req.body;
 
-    // If chat ID provided, try to retrieve session from database
+    // If chat ID provided, try to retrieve session from database OR in-memory cache
     let previousContext = null;
     let retrievedName = name;
     let retrievedStudentNumber = studentNumber;
 
-    if (chatId && database.isAvailable()) {
-      const chatHistory = await database.getChatHistory(chatId);
-      if (chatHistory) {
-        previousContext = chatHistory.session_summary;
-        // Get the last session to retrieve name and student number
-        const lastSession = await database.getSession(chatHistory.last_session_id);
-        if (lastSession) {
-          retrievedName = retrievedName || lastSession.name;
-          retrievedStudentNumber = retrievedStudentNumber || lastSession.student_number;
+    if (chatId) {
+      console.log(`[Session] Chat ID provided: ${chatId}`);
+
+      // Try database first
+      if (database.isAvailable()) {
+        console.log('[Session] Checking database for Chat ID history...');
+        const chatHistory = await database.getChatHistory(chatId);
+        if (chatHistory) {
+          console.log('[Session] Found chat history in database');
+          previousContext = chatHistory.session_summary;
+          // Get the last session to retrieve name and student number
+          const lastSession = await database.getSession(chatHistory.last_session_id);
+          if (lastSession) {
+            retrievedName = retrievedName || lastSession.name;
+            retrievedStudentNumber = retrievedStudentNumber || lastSession.student_number;
+          }
+        } else {
+          console.log('[Session] No chat history found in database');
+        }
+      } else {
+        // Fallback to in-memory cache
+        console.log('[Session] Database not available, checking in-memory cache...');
+        const cachedSession = sessionManager.getChatIdSession(chatId);
+        if (cachedSession) {
+          console.log('[Session] Found chat history in cache:', cachedSession);
+          previousContext = cachedSession.summary;
+          retrievedName = retrievedName || cachedSession.name;
+          retrievedStudentNumber = retrievedStudentNumber || cachedSession.studentNumber;
+        } else {
+          console.log('[Session] No chat history found in cache');
         }
       }
     }
@@ -185,11 +206,15 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // Step 7: Save session summary for chat ID continuity
+    console.log(`[Chat] Conversation history length: ${conversationHistory.length}`);
     if (conversationHistory.length > 3) {
+      console.log('[Chat] Generating conversation summary...');
       const summary = await memoryManager.summarizeConversation(
         session.sessionId,
         llmService.openai
       );
+      console.log(`[Chat] Summary generated: ${summary.substring(0, 100)}...`);
+
       sessionManager.saveChatIdSession(session.chatId, {
         name: session.name,
         studentNumber: session.studentNumber,
@@ -199,8 +224,13 @@ app.post('/api/chat', async (req, res) => {
 
       // Also save to database if available
       if (database.isAvailable()) {
+        console.log('[Chat] Saving to database...');
         await database.saveChatHistory(session.chatId, summary, session.sessionId);
+      } else {
+        console.log('[Chat] Database not available, using in-memory cache only');
       }
+    } else {
+      console.log('[Chat] Not enough messages to generate summary yet');
     }
 
     // Return response

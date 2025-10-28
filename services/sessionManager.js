@@ -88,7 +88,17 @@ class SessionManager {
       summary: sessionData.summary,
       lastInteraction: sessionData.lastInteraction || new Date().toISOString()
     };
+    console.log(`[SessionManager] Saving Chat ID ${chatId} to cache:`, dataToStore);
     chatIdMap.set(chatId, dataToStore);
+  }
+
+  /**
+   * Get session data by chat ID
+   */
+  getChatIdSession(chatId) {
+    const session = chatIdMap.get(chatId);
+    console.log(`[SessionManager] Retrieved Chat ID ${chatId} from cache:`, session || 'NOT FOUND');
+    return session;
   }
 
   /**
