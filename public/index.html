@@ -379,12 +379,17 @@
                     chatScreen.classList.add('active');
                     exitBtn.style.display = 'block';
 
-                    // Show greeting
-                    addMessage('system', data.greeting);
+                    // If continuing from Chat ID, display previous message history
+                    if (existingChatId && data.messageHistory && data.messageHistory.length > 0) {
+                        addMessage('system', `📋 Continuing from previous conversation (Chat ID: ${existingChatId})`);
 
-                    // If continuing from Chat ID, show context message
-                    if (existingChatId && data.previousContext) {
-                        addMessage('system', `📋 Continuing from previous conversation (Chat ID: ${existingChatId})\nPrevious discussion: ${data.previousContext}`);
+                        // Display all previous messages
+                        data.messageHistory.forEach(msg => {
+                            addMessage(msg.role, msg.content);
+                        });
+                    } else {
+                        // Show greeting for new session
+                        addMessage('system', data.greeting);
                     }
 
                     messageInput.focus();

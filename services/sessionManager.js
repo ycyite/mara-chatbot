@@ -77,18 +77,19 @@ class SessionManager {
   }
 
   /**
-   * Save session summary with chat ID for future retrieval
+   * Save full conversation history with chat ID for future retrieval
    */
   saveChatIdSession(chatId, sessionData) {
-    // Store essential session data for continuity
+    // Store full session data including message history for continuity
     const dataToStore = {
       chatId,
       name: sessionData.name,
       studentNumber: sessionData.studentNumber,
-      summary: sessionData.summary,
+      summary: sessionData.summary || '',
+      messageHistory: sessionData.messageHistory || [],
       lastInteraction: sessionData.lastInteraction || new Date().toISOString()
     };
-    console.log(`[SessionManager] Saving Chat ID ${chatId} to cache:`, dataToStore);
+    console.log(`[SessionManager] Saving Chat ID ${chatId} to cache with ${dataToStore.messageHistory.length} messages`);
     chatIdMap.set(chatId, dataToStore);
   }
 

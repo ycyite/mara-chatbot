@@ -115,12 +115,28 @@ app.post('/api/session', async (req, res) => {
       greeting = `Welcome back, ${session.name}! I remember our previous conversation. How can I help you today?`;
     }
 
+    // Get message history if continuing from Chat ID
+    let messageHistory = [];
+    if (chatId) {
+      if (database.isAvailable()) {
+        // Get from database
+        const messages = await database.getSessionMessages(session.sessionId);
+        messageHistory = messages || [];
+      } else {
+        // Get from cache
+        const cachedSession = sessionManager.getChatIdSession(chatId);
+        messageHistory = cachedSession ? cachedSession.messageHistory : [];
+      }
+      console.log(`[Session] Retrieved ${messageHistory.length} messages from history`);
+    }
+
     res.json({
       sessionId: session.sessionId,
       userType: session.userType,
       studentInfo: session.studentInfo,
       greeting,
-      previousContext: session.previousContext
+      previousContext: session.previousContext,
+      messageHistory
     });
   } catch (error) {
     console.error('Session creation error:', error);
@@ -205,32 +221,37 @@ app.post('/api/chat', async (req, res) => {
       await database.saveMessage(session.sessionId, 'assistant', response);
     }
 
-    // Step 7: Save session summary for chat ID continuity
-    console.log(`[Chat] Conversation history length: ${conversationHistory.length}`);
-    if (conversationHistory.length > 3) {
-      console.log('[Chat] Generating conversation summary...');
-      const summary = await memoryManager.summarizeConversation(
+    // Step 7: Save full conversation history with chat ID after EVERY message
+    console.log(`[Chat] Saving conversation history (${conversationHistory.length} messages)...`);
+
+    // Get full message history from memory
+    const fullHistory = memoryManager.getFullHistory(session.sessionId);
+
+    // Generate summary only if we have multiple messages
+    let summary = '';
+    if (conversationHistory.length >= 3) {
+      summary = await memoryManager.summarizeConversation(
         session.sessionId,
         llmService.openai
       );
       console.log(`[Chat] Summary generated: ${summary.substring(0, 100)}...`);
+    }
 
-      sessionManager.saveChatIdSession(session.chatId, {
-        name: session.name,
-        studentNumber: session.studentNumber,
-        summary,
-        lastInteraction: new Date().toISOString()
-      });
+    // Save to in-memory cache with full message history
+    sessionManager.saveChatIdSession(session.chatId, {
+      name: session.name,
+      studentNumber: session.studentNumber,
+      summary,
+      messageHistory: fullHistory,
+      lastInteraction: new Date().toISOString()
+    });
 
-      // Also save to database if available
-      if (database.isAvailable()) {
-        console.log('[Chat] Saving to database...');
-        await database.saveChatHistory(session.chatId, summary, session.sessionId);
-      } else {
-        console.log('[Chat] Database not available, using in-memory cache only');
-      }
+    // Also save to database if available
+    if (database.isAvailable()) {
+      console.log('[Chat] Saving to database...');
+      await database.saveChatHistory(session.chatId, summary, session.sessionId);
     } else {
-      console.log('[Chat] Not enough messages to generate summary yet');
+      console.log('[Chat] Saved to in-memory cache');
     }
 
     // Return response
