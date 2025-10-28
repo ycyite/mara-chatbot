@@ -253,6 +253,31 @@ class Database {
   }
 
   /**
+   * Get all messages for a session
+   */
+  async getSessionMessages(sessionId) {
+    if (!this.isAvailable()) return [];
+
+    try {
+      const query = `
+        SELECT role, content, created_at
+        FROM messages
+        WHERE session_id = $1
+        ORDER BY created_at ASC;
+      `;
+      const result = await this.pool.query(query, [sessionId]);
+      return result.rows.map(row => ({
+        role: row.role,
+        content: row.content,
+        timestamp: row.created_at
+      }));
+    } catch (error) {
+      console.error('Error getting session messages:', error.message);
+      return [];
+    }
+  }
+
+  /**
    * Get analytics data
    */
   async getAnalytics(days = 7) {
