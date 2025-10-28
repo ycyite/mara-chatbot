@@ -119,9 +119,12 @@ app.post('/api/session', async (req, res) => {
     let messageHistory = [];
     if (chatId) {
       if (database.isAvailable()) {
-        // Get from database
-        const messages = await database.getSessionMessages(session.sessionId);
-        messageHistory = messages || [];
+        // Get from database - need to get messages from the PREVIOUS session
+        const chatHistory = await database.getChatHistory(chatId);
+        if (chatHistory && chatHistory.last_session_id) {
+          const messages = await database.getSessionMessages(chatHistory.last_session_id);
+          messageHistory = messages || [];
+        }
       } else {
         // Get from cache
         const cachedSession = sessionManager.getChatIdSession(chatId);
