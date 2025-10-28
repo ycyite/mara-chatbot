@@ -7,6 +7,7 @@ const memoryManager = require('./services/memoryManager');
 const ragRetriever = require('./services/ragRetriever');
 const llmService = require('./services/llmService');
 const escalationService = require('./services/escalationService');
+const database = require('./services/database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,7 +28,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Initialize RAG retriever
+// Initialize services
+database.initialize().catch(console.error);
 ragRetriever.initialize().catch(console.error);
 
 // Health check endpoint
@@ -146,9 +148,16 @@ app.post('/api/chat', async (req, res) => {
       escalationInfo
     });
 
-    // Step 6: Store conversation in memory
+    // Step 6: Store conversation in memory AND database
     memoryManager.storeMessage(session.sessionId, 'user', message);
     memoryManager.storeMessage(session.sessionId, 'assistant', response);
+
+    // Save to database if available
+    if (database.isAvailable()) {
+      await database.saveSession(session);
+      await database.saveMessage(session.sessionId, 'user', message, intent.intent, intent.emotionalState);
+      await database.saveMessage(session.sessionId, 'assistant', response);
+    }
 
     // Step 7: Save session summary for chat ID continuity
     if (conversationHistory.length > 5) {
@@ -226,6 +235,34 @@ app.get('/api/contacts/:category?', (req, res) => {
     console.error('Contact retrieval error:', error);
     res.status(500).json({
       error: 'Failed to retrieve contacts',
+      message: error.message
+    });
+  }
+});
+
+/**
+ * Get analytics endpoint
+ */
+app.get('/api/analytics', async (req, res) => {
+  try {
+    if (!database.isAvailable()) {
+      return res.status(503).json({
+        error: 'Database not available',
+        message: 'Analytics require database connection'
+      });
+    }
+
+    const days = parseInt(req.query.days) || 7;
+    const analytics = await database.getAnalytics(days);
+
+    res.json({
+      period: `Last ${days} days`,
+      data: analytics
+    });
+  } catch (error) {
+    console.error('Analytics error:', error);
+    res.status(500).json({
+      error: 'Failed to retrieve analytics',
       message: error.message
     });
   }
