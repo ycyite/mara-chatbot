@@ -58,23 +58,48 @@ app.get('/', (req, res) => {
 /**
  * Create new session endpoint
  */
-app.post('/api/session', (req, res) => {
+app.post('/api/session', async (req, res) => {
   try {
     const { name, studentNumber, chatId } = req.body;
 
-    if (!name) {
+    // If chat ID provided, try to retrieve session from database
+    let previousContext = null;
+    let retrievedName = name;
+    let retrievedStudentNumber = studentNumber;
+
+    if (chatId && database.isAvailable()) {
+      const chatHistory = await database.getChatHistory(chatId);
+      if (chatHistory) {
+        previousContext = chatHistory.session_summary;
+        // Get the last session to retrieve name and student number
+        const lastSession = await database.getSession(chatHistory.last_session_id);
+        if (lastSession) {
+          retrievedName = retrievedName || lastSession.name;
+          retrievedStudentNumber = retrievedStudentNumber || lastSession.student_number;
+        }
+      }
+    }
+
+    if (!retrievedName && !chatId) {
       return res.status(400).json({
-        error: 'Name is required'
+        error: 'Name is required for new sessions'
       });
     }
 
-    const session = sessionManager.createSession(name, studentNumber, chatId);
+    const session = sessionManager.createSession(retrievedName, retrievedStudentNumber, chatId);
+
+    let greeting = `Hi ${session.name}! I'm Mara, your McMaster Remote Assistant. How can I help you today?`;
+
+    if (chatId && previousContext) {
+      greeting = `Welcome back, ${session.name}! I remember our previous conversation. How can I help you today?`;
+    }
 
     res.json({
       sessionId: session.sessionId,
       userType: session.userType,
       studentInfo: session.studentInfo,
-      greeting: `Hi ${name}! I'm Mara, your McMaster Remote Assistant. How can I help you today?`
+      greeting,
+      previousContext: session.previousContext
     });
   } catch (error) {
     console.error('Session creation error:', error);
@@ -160,15 +185,22 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // Step 7: Save session summary for chat ID continuity
-    if (conversationHistory.length > 5) {
+    if (conversationHistory.length > 3) {
       const summary = await memoryManager.summarizeConversation(
         session.sessionId,
         llmService.openai
       );
       sessionManager.saveChatIdSession(session.chatId, {
+        name: session.name,
+        studentNumber: session.studentNumber,
         summary,
         lastInteraction: new Date().toISOString()
       });
+
+      // Also save to database if available
+      if (database.isAvailable()) {
+        await database.saveChatHistory(session.chatId, summary, session.sessionId);
+      }
     }
 
     // Return response

@@ -11,26 +11,26 @@ class SessionManager {
    */
   createSession(name, studentNumber, chatId = null) {
     const sessionId = uuidv4();
+
+    // If chat ID provided, try to get previous session data
+    let previousSession = null;
+    if (chatId) {
+      previousSession = chatIdMap.get(chatId);
+    }
+
     const session = {
       sessionId,
-      name,
-      studentNumber,
+      name: name || (previousSession ? previousSession.name : ''),
+      studentNumber: studentNumber || (previousSession ? previousSession.studentNumber : ''),
       chatId,
-      userType: this.determineUserType(studentNumber),
-      studentInfo: this.getStudentInfo(studentNumber),
+      userType: this.determineUserType(studentNumber || (previousSession ? previousSession.studentNumber : '')),
+      studentInfo: this.getStudentInfo(studentNumber || (previousSession ? previousSession.studentNumber : '')),
       createdAt: new Date().toISOString(),
-      conversationHistory: []
+      conversationHistory: [],
+      previousContext: previousSession ? previousSession.summary : null
     };
 
     sessionCache.set(sessionId, session);
-
-    // Link chat ID if provided
-    if (chatId) {
-      const previousSession = chatIdMap.get(chatId);
-      if (previousSession) {
-        session.previousContext = previousSession.summary;
-      }
-    }
 
     return session;
   }
@@ -79,8 +79,16 @@ class SessionManager {
   /**
    * Save session summary with chat ID for future retrieval
    */
-  saveChatIdSession(chatId, sessionSummary) {
-    chatIdMap.set(chatId, sessionSummary);
+  saveChatIdSession(chatId, sessionData) {
+    // Store essential session data for continuity
+    const dataToStore = {
+      chatId,
+      name: sessionData.name,
+      studentNumber: sessionData.studentNumber,
+      summary: sessionData.summary,
+      lastInteraction: sessionData.lastInteraction || new Date().toISOString()
+    };
+    chatIdMap.set(chatId, dataToStore);
   }
 
   /**
