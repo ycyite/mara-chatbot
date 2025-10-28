@@ -35,8 +35,8 @@ Return ONLY valid JSON, no other text.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Message: "${message}"\n\nConversation context: ${JSON.stringify(conversationHistory.slice(-3))}` }
         ],
-        temperature: 0.3,
-        max_tokens: 300
+        temperature: 0.3
+        // max_tokens removed for unlimited output
       });
 
       const result = JSON.parse(response.choices[0].message.content);

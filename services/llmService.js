@@ -49,7 +49,7 @@ class LLMService {
         model: 'gpt-5',
         messages: messages,
         temperature: 0.7,
-        max_tokens: 500,
+        // max_tokens removed for unlimited output (uses model's maximum: 128,000 tokens)
         presence_penalty: 0.3,
         frequency_penalty: 0.3
       });

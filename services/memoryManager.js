@@ -78,7 +78,7 @@ class MemoryManager {
             content: conversationText
           }
         ],
-        max_tokens: 150,
+        // max_tokens removed for unlimited output
         temperature: 0.3
       });
 
