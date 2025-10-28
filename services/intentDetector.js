@@ -30,7 +30,7 @@ Return ONLY valid JSON, no other text.`;
 
     try {
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Message: "${message}"\n\nConversation context: ${JSON.stringify(conversationHistory.slice(-3))}` }
