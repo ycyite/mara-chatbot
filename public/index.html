@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mara - McMaster Remote Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7A003C 0%, #4A0025 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .chat-container {
+            width: 90%;
+            max-width: 800px;
+            height: 90vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: #7A003C;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .chat-header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .chat-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .exit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .exit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .login-screen {
+            display: none;
+            padding: 30px;
+        }
+
+        .chat-screen {
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .login-screen.active, .chat-screen.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7A003C;
+        }
+
+        .form-group small {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .btn {
+            background: #7A003C;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #5A002C;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 20px;
+            background: #f9f9f9;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            min-height: 0;
+            max-height: 100%;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .message.user .message-content {
+            background: #7A003C;
+            color: white;
+        }
+
+        .message.system .message-content {
+            background: #FFF9E6;
+            color: #856404;
+            border: 1px solid #FFE9A3;
+            max-width: 100%;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px;
+            font-style: italic;
+            color: #666;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .input-area {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .input-container input:focus {
+            outline: none;
+            border-color: #7A003C;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: #7A003C;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: #5A002C;
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .chat-id-display {
+            text-align: center;
+            padding: 10px;
+            background: #E8F5E9;
+            border: 1px solid #4CAF50;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #2E7D32;
+        }
+
+        .chat-id-display strong {
+            color: #1B5E20;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <button class="exit-btn" id="exitBtn" style="display: none;">Exit Chat</button>
+            <h1>Mara</h1>
+            <p>McMaster Remote Assistant</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div class="login-screen active" id="loginScreen">
+            <div class="login-form">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">Welcome!</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="name">Name *</label>
+                        <input type="text" id="name" required placeholder="Enter your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="studentNumber">Student Number</label>
+                        <input type="text" id="studentNumber" placeholder="e.g., 400123456">
+                        <small>Leave blank if you're not a current student</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="chatId">Chat ID (Optional)</label>
+                        <input type="text" id="chatId" placeholder="Enter your previous chat ID">
+                        <small>Use this to continue a previous conversation</small>
+                    </div>
+                    <button type="submit" class="btn">Start Chat</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div class="chat-screen" id="chatScreen">
+            <div id="chatIdDisplay" class="chat-id-display" style="display: none;"></div>
+            <div class="messages" id="messages"></div>
+            <div class="typing-indicator" id="typingIndicator">Mara is typing...</div>
+            <div class="input-area">
+                <div class="input-container">
+                    <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+                    <button class="send-btn" id="sendBtn">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = window.location.hostname === 'localhost'
+            ? 'http://localhost:3001'
+            : window.location.origin;
+
+        // State
+        let sessionId = null;
+        let chatId = null;
+        let userName = '';
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const chatScreen = document.getElementById('chatScreen');
+        const loginForm = document.getElementById('loginForm');
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const chatIdDisplay = document.getElementById('chatIdDisplay');
+        const exitBtn = document.getElementById('exitBtn');
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            userName = document.getElementById('name').value.trim();
+            const studentNumber = document.getElementById('studentNumber').value.trim();
+            const existingChatId = document.getElementById('chatId').value.trim();
+
+            if (!userName) {
+                alert('Please enter your name');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: userName,
+                        studentNumber: studentNumber || null,
+                        chatId: existingChatId || null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.sessionId) {
+                    sessionId = data.sessionId;
+                    loginScreen.classList.remove('active');
+                    chatScreen.classList.add('active');
+                    exitBtn.style.display = 'block';
+                    addMessage('system', data.greeting);
+                    messageInput.focus();
+                } else {
+                    alert('Failed to create session. Please try again.');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Failed to connect to server. Please check if the server is running.');
+            }
+        });
+
+        // Exit chat
+        exitBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to exit? Your conversation will be saved with Chat ID: ' + (chatId || 'N/A'))) {
+                // Reset state
+                sessionId = null;
+                chatId = null;
+                messagesDiv.innerHTML = '';
+                chatIdDisplay.style.display = 'none';
+                loginForm.reset();
+
+                // Switch screens
+                chatScreen.classList.remove('active');
+                loginScreen.classList.add('active');
+                exitBtn.style.display = 'none';
+            }
+        });
+
+        // Send message
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            messageInput.value = '';
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+
+            addMessage('user', message);
+            showTyping(true);
+
+            try {
+                const response = await fetch(`${API_URL}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId,
+                        message,
+                        name: userName
+                    })
+                });
+
+                const data = await response.json();
+
+                showTyping(false);
+
+                if (data.response) {
+                    addMessage('assistant', data.response);
+
+                    // Display chat ID if new
+                    if (data.chatId && data.chatId !== chatId) {
+                        chatId = data.chatId;
+                        showChatId(chatId);
+                    }
+                } else if (data.error) {
+                    addMessage('assistant', data.error);
+                }
+            } catch (error) {
+                showTyping(false);
+                console.error('Send error:', error);
+                addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // UI Functions
+        function addMessage(role, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = formatMessage(content);
+
+            messageDiv.appendChild(contentDiv);
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function formatMessage(text) {
+            // Convert markdown-style formatting
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>')
+                .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+        }
+
+        function showTyping(show) {
+            typingIndicator.classList.toggle('active', show);
+            if (show) {
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            }
+        }
+
+        function showChatId(id) {
+            chatIdDisplay.innerHTML = `<strong>Your Chat ID:</strong> ${id} <small>(Save this to continue later)</small>`;
+            chatIdDisplay.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

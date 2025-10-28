@@ -1,0 +1,92 @@
+[
+  {
+    "topic": "fees",
+    "content": "McMaster University full-time students (enrolled in 6 or more units) are automatically charged mandatory fees including gym access and HSR bus pass. For remote students who cannot access these services, exemption requests can be submitted to the MSU Student Council or the Parking and Transit Office. The bus pass fee is approximately $195 per semester, and the gym fee is approximately $185 per semester. To request an exemption, email the relevant department with your student number and reason for exemption.",
+    "source": "McMaster Student Accounts Office - Fee Policy 2025",
+    "metadata": {
+      "category": "fees",
+      "keywords": ["gym", "bus pass", "tuition", "remote", "fees", "exemption", "mandatory"]
+    }
+  },
+  {
+    "topic": "remote_learning",
+    "content": "McMaster offers comprehensive support for remote and distance learners through degree completion programs. Remote students have access to online library resources, virtual academic advising, technical support, and student wellness services. All remote students can access Mosaic for course registration, Avenue to Learn for course materials, and Microsoft Teams for virtual office hours. Technical support is available through UTS (University Technology Services) at uts@mcmaster.ca or 905-525-9140 ext. 24357.",
+    "source": "McMaster Remote Learning Guidelines 2025",
+    "metadata": {
+      "category": "academics",
+      "keywords": ["remote", "online", "distance", "virtual", "degree completion"]
+    }
+  },
+  {
+    "topic": "wellness",
+    "content": "The Student Wellness Centre provides comprehensive mental health and counseling services to all McMaster students, including remote learners. Services include individual counseling, crisis intervention, group therapy, wellness workshops, and stress management programs. The centre is open 8:00am-10:00pm daily with same-day appointments available for urgent concerns. Students can book appointments through the Wellness Portal or by calling 905-525-9140 ext. 27700. A 24/7 crisis line is available at 1-866-925-5454 (Good2Talk).",
+    "source": "Student Wellness Centre - Services Guide 2025",
+    "metadata": {
+      "category": "wellness",
+      "keywords": ["mental health", "counseling", "support", "stress", "crisis", "therapy", "wellness"]
+    }
+  },
+  {
+    "topic": "registration",
+    "content": "Course registration at McMaster is conducted through Mosaic and occurs in designated time windows based on student level and program. Fourth-year students register first, followed by third-year, second-year, and first-year students. Full-time status requires enrollment in at least 6 units (typically 2 courses) per semester. Students can enroll in a maximum of 6 units (2 courses) per semester for degree completion programs. Course add/drop deadlines are strictly enforced - the last day to add courses without penalty is typically the end of the first week, and the last day to drop without academic penalty is typically the end of week 8.",
+    "source": "McMaster Registrar - Course Registration Policy 2025",
+    "metadata": {
+      "category": "academics",
+      "keywords": ["registration", "courses", "enrollment", "mosaic", "add", "drop", "full-time"]
+    }
+  },
+  {
+    "topic": "academic_advising",
+    "content": "Academic advising services are available to all McMaster students through their faculty advisor. Advisors can assist with course selection, program planning, academic standing concerns, and degree requirement clarification. Remote students can book virtual advising appointments through the Student Success Centre portal. Walk-in advising is available Mon-Fri 9:00am-4:00pm, and appointments typically receive responses within 1-2 business days. Email advising@mcmaster.ca for general academic questions.",
+    "source": "Student Success Centre - Academic Advising 2025",
+    "metadata": {
+      "category": "academics",
+      "keywords": ["advisor", "advising", "academic", "program", "planning", "requirements"]
+    }
+  },
+  {
+    "topic": "software_engineering_program",
+    "content": "McMaster's Software Engineering degree completion program is designed for working professionals who want to complete their degree remotely. The program offers evening and weekend courses, asynchronous learning options, and flexible scheduling. Core courses include Software Design, Algorithms, Database Systems, and Software Project Management. Students typically complete the program in 2-3 years of part-time study. For admissions and program-specific questions, contact Dr. Laura Bennett at bennettl@mcmaster.ca. Office hours are Mon-Thurs 9:00am-3:00pm.",
+    "source": "Faculty of Engineering - Software Engineering Degree Completion Program 2025",
+    "metadata": {
+      "category": "admissions",
+      "keywords": ["software engineering", "degree completion", "program", "admission", "application", "remote"]
+    }
+  },
+  {
+    "topic": "tuition_payment",
+    "content": "Tuition and fees are due by the published deadlines each semester. Payment can be made through Mosaic using online banking, credit card, or international wire transfer. McMaster offers payment plans for students who need to split their tuition into installments - contact Student Accounts at student.accounts@mcmaster.ca to set up a payment plan. Late payment fees of $50 are charged for payments received after the deadline. Financial aid and OSAP information is available through the Financial Aid Office.",
+    "source": "Student Accounts Office - Payment Information 2025",
+    "metadata": {
+      "category": "fees",
+      "keywords": ["tuition", "payment", "deadline", "installment", "OSAP", "financial aid"]
+    }
+  },
+  {
+    "topic": "technical_support",
+    "content": "University Technology Services (UTS) provides technical support for all McMaster systems including Mosaic, Avenue to Learn, email, WiFi, and software access. Remote students can access VPN services for secure connection to campus resources. Support is available Mon-Fri 8:00am-5:00pm via phone (905-525-9140 ext. 24357), email (uts@mcmaster.ca), or live chat through the UTS portal. Self-service guides and tutorials are available 24/7 on the UTS website for common issues.",
+    "source": "University Technology Services - Student Support 2025",
+    "metadata": {
+      "category": "technical",
+      "keywords": ["technical", "IT", "mosaic", "avenue", "email", "VPN", "support", "technology"]
+    }
+  },
+  {
+    "topic": "library_resources",
+    "content": "McMaster University Libraries provide extensive online resources for remote students including e-books, academic journals, research databases, and digital archives. Remote students have 24/7 access to all online materials through the library website using their MacID. Research help is available through virtual reference service via chat, email (libref@mcmaster.ca), or by booking a virtual consultation with a subject librarian. Document delivery services are available for physical materials needed by remote students.",
+    "source": "McMaster University Libraries - Remote Access Guide 2025",
+    "metadata": {
+      "category": "academics",
+      "keywords": ["library", "research", "e-books", "journals", "databases", "remote access"]
+    }
+  },
+  {
+    "topic": "student_accessibility",
+    "content": "Student Accessibility Services (SAS) provides accommodations and support for students with disabilities, including remote learners. Services include exam accommodations, assistive technology, note-taking support, and academic strategy coaching. Students can register with SAS by submitting documentation online and booking an intake appointment. Contact SAS at sas@mcmaster.ca or 905-525-9140 ext. 28652. All accommodations are confidential and handled according to the Ontario Human Rights Code.",
+    "source": "Student Accessibility Services - Support Guide 2025",
+    "metadata": {
+      "category": "support",
+      "keywords": ["accessibility", "disability", "accommodations", "support", "SAS"]
+    }
+  }
+]
