@@ -46,7 +46,7 @@ class LLMService {
 
       // Call OpenAI API
       const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-5',
         messages: messages,
         temperature: 0.7,
         max_tokens: 500,
