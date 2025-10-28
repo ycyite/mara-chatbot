@@ -77,9 +77,9 @@ class MemoryManager {
             role: 'user',
             content: conversationText
           }
-        ],
+        ]
+        // GPT-5 only supports default temperature (1) - custom values not allowed
         // max_tokens removed for unlimited output
-        temperature: 0.3
       });
 
       return response.choices[0].message.content;

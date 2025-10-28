@@ -47,11 +47,10 @@ class LLMService {
       // Call OpenAI API
       const response = await this.openai.chat.completions.create({
         model: 'gpt-5',
-        messages: messages,
-        temperature: 0.7,
+        messages: messages
+        // GPT-5 only supports default temperature (1) - custom values not allowed
         // max_tokens removed for unlimited output (uses model's maximum: 128,000 tokens)
-        presence_penalty: 0.3,
-        frequency_penalty: 0.3
+        // presence_penalty and frequency_penalty removed - not supported by GPT-5
       });
 
       let responseText = response.choices[0].message.content;

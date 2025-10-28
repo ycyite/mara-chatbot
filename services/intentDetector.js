@@ -34,8 +34,8 @@ Return ONLY valid JSON, no other text.`;
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Message: "${message}"\n\nConversation context: ${JSON.stringify(conversationHistory.slice(-3))}` }
-        ],
-        temperature: 0.3
+        ]
+        // GPT-5 only supports default temperature (1) - custom values not allowed
         // max_tokens removed for unlimited output
       });
 
